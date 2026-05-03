@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Heart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 
 interface ProductCardProps {
@@ -13,6 +13,7 @@ interface ProductCardProps {
   image?: string;
   slug: string;
   category?: string;
+  firstVariantPrice?: number | null;
 }
 
 export default function ProductCard({
@@ -23,58 +24,62 @@ export default function ProductCard({
   image,
   slug,
   category,
+  firstVariantPrice,
 }: ProductCardProps) {
-  const displayPrice = salePrice || price;
-  const hasDiscount = salePrice && salePrice < price;
+  // If variant has a price, use it as base display price
+  const basePrice = firstVariantPrice ?? price;
+  const displayPrice = salePrice && salePrice < basePrice ? salePrice : basePrice;
+  const originalPrice = salePrice && salePrice < basePrice ? basePrice : null;
+  const hasDiscount = !!originalPrice;
   const discountPercent = hasDiscount
-    ? Math.round(((price - salePrice!) / price) * 100)
+    ? Math.round(((basePrice - displayPrice) / basePrice) * 100)
     : 0;
 
   return (
     <Link href={`/products/${id}`} className="group block">
-      <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
-        <div className="relative aspect-square overflow-hidden bg-gray-50">
+      <div
+        className="bg-white rounded-lg overflow-hidden transition-shadow duration-200 hover:shadow-md"
+        style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}
+      >
+        {/* Image */}
+        <div className="relative aspect-square overflow-hidden bg-[#F5F5F5]">
           {image ? (
             <Image
               src={image}
               alt={name}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
             />
           ) : (
-            <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
-              <div className="text-center text-gray-400">
-                <ShoppingCart className="mx-auto h-12 w-12 mb-2 opacity-30" />
-                <p className="text-xs">Chưa có ảnh</p>
-              </div>
+            <div className="flex h-full items-center justify-center bg-[#F5F5F5]">
+              <ShoppingBag className="mx-auto h-10 w-10 text-[#E0E0E0]" />
             </div>
           )}
-          {hasDiscount && (
-            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
+          {hasDiscount && discountPercent > 0 && (
+            <div className="absolute top-2 left-2 bg-[#EE4D2D] text-white text-xs font-bold px-1.5 py-0.5 rounded" style={{ fontSize: "11px" }}>
               -{discountPercent}%
             </div>
           )}
-          <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-pink-50">
-            <Heart className="h-4 w-4 text-pink-400" />
-          </button>
         </div>
-        <div className="p-3">
-          {category && (
-            <p className="text-xs text-purple-500 font-medium mb-1">{category}</p>
-          )}
-          <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-2 leading-5">
+
+        {/* Info */}
+        <div className="p-2.5">
+          <h3 className="text-sm text-[#212121] line-clamp-2 leading-5 mb-1.5 font-normal">
             {name}
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="text-base font-bold text-pink-600">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-sm font-bold text-[#EE4D2D]">
               {formatPrice(displayPrice)}
             </span>
-            {hasDiscount && (
-              <span className="text-xs text-gray-400 line-through">
-                {formatPrice(price)}
+            {hasDiscount && originalPrice && (
+              <span className="text-xs text-[#9E9E9E] line-through">
+                {formatPrice(originalPrice)}
               </span>
             )}
           </div>
+          {category && (
+            <p className="text-xs text-[#9E9E9E] mt-1 line-clamp-1">{category}</p>
+          )}
         </div>
       </div>
     </Link>

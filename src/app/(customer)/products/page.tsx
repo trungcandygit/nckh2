@@ -34,6 +34,7 @@ async function getProducts(searchParams: SearchParams) {
       include: {
         images: { where: { isPrimary: true }, take: 1 },
         category: true,
+        variants: { orderBy: { createdAt: "asc" }, take: 1 },
       },
       orderBy,
       take: 48,
@@ -213,6 +214,7 @@ export default async function ProductsPage({
                   image={product.images[0]?.url}
                   slug={product.slug}
                   category={product.category?.name}
+                  firstVariantPrice={product.variants[0]?.price}
                 />
               ))}
             </div>

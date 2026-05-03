@@ -1,8 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import AdminNav from "@/components/AdminNav";
 import SessionProvider from "@/components/SessionProvider";
+import "./admin.css";
 
 export default async function AdminLayout({
   children,
@@ -11,11 +10,11 @@ export default async function AdminLayout({
 }) {
   const session = await getServerSession(authOptions);
 
-  // Login page doesn't need auth
-  // We'll check dynamically; pages that need auth redirect
   return (
     <SessionProvider session={session}>
-      {children}
+      <div className="admin-root min-h-screen bg-[#F5F5F5]">
+        {children}
+      </div>
     </SessionProvider>
   );
 }
