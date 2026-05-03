@@ -7,7 +7,6 @@ import Link from "next/link";
 import {
   ShoppingCart,
   ChevronLeft,
-  Share2,
   Star,
   Truck,
   Shield,
@@ -67,11 +66,11 @@ export default function ProductDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid md:grid-cols-2 gap-8 animate-pulse">
-          <div className="aspect-square bg-gray-200 rounded-2xl" />
+          <div className="aspect-square bg-[#F5F5F5] rounded-lg" />
           <div className="space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-3/4" />
-            <div className="h-6 bg-gray-200 rounded w-1/4" />
-            <div className="h-24 bg-gray-200 rounded" />
+            <div className="h-8 bg-[#F5F5F5] rounded w-3/4" />
+            <div className="h-6 bg-[#F5F5F5] rounded w-1/4" />
+            <div className="h-24 bg-[#F5F5F5] rounded" />
           </div>
         </div>
       </div>
@@ -82,7 +81,7 @@ export default function ProductDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
         <div className="text-6xl mb-4">😢</div>
-        <h2 className="text-2xl font-bold text-gray-700 mb-4">
+        <h2 className="text-2xl font-bold text-[#212121] mb-4">
           Không tìm thấy sản phẩm
         </h2>
         <Link href="/products">
@@ -92,13 +91,22 @@ export default function ProductDetailPage() {
     );
   }
 
+  // Calculate price - check selected variant price first
+  const variantTypes = Object.keys(
+    product.variants.reduce((acc, v) => ({ ...acc, [v.type]: true }), {} as Record<string, boolean>)
+  );
+  const selectedVariant =
+    variantTypes.length > 0
+      ? product.variants.find((v) => selectedVariants[v.type] === v.id)
+      : undefined;
+
+  const basePrice = selectedVariant?.price || product.price;
+  const salePrice = product.salePrice;
   const displayPrice =
-    product.salePrice && product.salePrice < product.price
-      ? product.salePrice
-      : product.price;
-  const hasDiscount = product.salePrice && product.salePrice < product.price;
+    salePrice && salePrice < basePrice ? salePrice : basePrice;
+  const hasDiscount = salePrice && salePrice < basePrice;
   const discountPercent = hasDiscount
-    ? Math.round(((product.price - product.salePrice!) / product.price) * 100)
+    ? Math.round(((basePrice - displayPrice) / basePrice) * 100)
     : 0;
 
   // Group variants by type
@@ -109,18 +117,11 @@ export default function ProductDetailPage() {
   });
 
   const handleAddToCart = () => {
-    // Get selected variant
-    const variantTypes = Object.keys(variantGroups);
-    const selectedVariant =
-      variantTypes.length > 0
-        ? product.variants.find((v) => selectedVariants[v.type] === v.id)
-        : undefined;
-
     const cartItem = {
       id: `${product.id}-${selectedVariant?.id || "default"}-${Date.now()}`,
       productId: product.id,
       name: product.name,
-      price: selectedVariant?.price || displayPrice,
+      price: displayPrice,
       image: product.images[0]?.url || "",
       quantity,
       variantId: selectedVariant?.id,
@@ -141,12 +142,12 @@ export default function ProductDetailPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-        <Link href="/" className="hover:text-purple-600">
+      <div className="flex items-center gap-2 text-sm text-[#9E9E9E] mb-6">
+        <Link href="/" className="hover:text-[#EE4D2D] transition-colors">
           Trang chủ
         </Link>
         <span>/</span>
-        <Link href="/products" className="hover:text-purple-600">
+        <Link href="/products" className="hover:text-[#EE4D2D] transition-colors">
           Sản phẩm
         </Link>
         {product.category && (
@@ -154,20 +155,20 @@ export default function ProductDetailPage() {
             <span>/</span>
             <Link
               href={`/products?category=${product.category.slug}`}
-              className="hover:text-purple-600"
+              className="hover:text-[#EE4D2D] transition-colors"
             >
               {product.category.name}
             </Link>
           </>
         )}
         <span>/</span>
-        <span className="text-gray-700 font-medium line-clamp-1">{product.name}</span>
+        <span className="text-[#212121] font-medium line-clamp-1">{product.name}</span>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Images */}
         <div>
-          <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-50 mb-3">
+          <div className="relative aspect-square rounded-lg overflow-hidden bg-[#F5F5F5] mb-3">
             {product.images[selectedImage] ? (
               <Image
                 src={product.images[selectedImage].url}
@@ -176,26 +177,26 @@ export default function ProductDetailPage() {
                 className="object-cover"
               />
             ) : (
-              <div className="flex items-center justify-center h-full bg-gradient-to-br from-purple-50 to-pink-50 text-gray-400">
+              <div className="flex items-center justify-center h-full bg-[#F5F5F5] text-[#E0E0E0]">
                 <ShoppingCart className="h-20 w-20 opacity-20" />
               </div>
             )}
             {hasDiscount && (
-              <div className="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-xl">
+              <div className="absolute top-3 left-3 bg-[#EE4D2D] text-white text-sm font-bold px-2.5 py-1 rounded">
                 -{discountPercent}%
               </div>
             )}
           </div>
           {product.images.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto">
+            <div className="flex gap-2 overflow-x-auto pb-1">
               {product.images.map((img, i) => (
                 <button
                   key={img.id}
                   onClick={() => setSelectedImage(i)}
-                  className={`relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-colors ${
+                  className={`relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0 border-2 transition-colors ${
                     selectedImage === i
-                      ? "border-purple-500"
-                      : "border-transparent"
+                      ? "border-[#EE4D2D]"
+                      : "border-[#E0E0E0] hover:border-[#EE4D2D]/50"
                   }`}
                 >
                   <Image src={img.url} alt="" fill className="object-cover" />
@@ -208,20 +209,23 @@ export default function ProductDetailPage() {
         {/* Product info */}
         <div>
           {product.category && (
-            <Badge className="mb-2">{product.category.name}</Badge>
+            <Badge className="mb-2 bg-[#F5F5F5] text-[#616161] hover:bg-[#EEEEEE]">
+              {product.category.name}
+            </Badge>
           )}
-          <h1 className="text-2xl font-black text-gray-900 mb-3">{product.name}</h1>
+          <h1 className="text-2xl font-bold text-[#212121] mb-3">{product.name}</h1>
 
+          {/* Price */}
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-3xl font-black text-pink-600">
+            <span className="text-3xl font-bold text-[#EE4D2D]">
               {formatPrice(displayPrice)}
             </span>
             {hasDiscount && (
               <>
-                <span className="text-lg text-gray-400 line-through">
-                  {formatPrice(product.price)}
+                <span className="text-lg text-[#9E9E9E] line-through">
+                  {formatPrice(basePrice)}
                 </span>
-                <span className="bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-lg">
+                <span className="bg-[#FFF0ED] text-[#EE4D2D] text-sm font-bold px-2 py-1 rounded">
                   -{discountPercent}%
                 </span>
               </>
@@ -231,18 +235,15 @@ export default function ProductDetailPage() {
           {/* Stars */}
           <div className="flex items-center gap-1 mb-4">
             {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className="h-4 w-4 text-yellow-400 fill-yellow-400"
-              />
+              <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
             ))}
-            <span className="text-sm text-gray-500 ml-1">5.0</span>
+            <span className="text-sm text-[#9E9E9E] ml-1">5.0</span>
           </div>
 
           {/* Variants */}
           {Object.entries(variantGroups).map(([type, variants]) => (
             <div key={type} className="mb-4">
-              <p className="text-sm font-bold text-gray-700 mb-2">{type}:</p>
+              <p className="text-sm font-semibold text-[#212121] mb-2">{type}:</p>
               <div className="flex flex-wrap gap-2">
                 {variants.map((v) => (
                   <button
@@ -250,14 +251,19 @@ export default function ProductDetailPage() {
                     onClick={() =>
                       setSelectedVariants((prev) => ({ ...prev, [type]: v.id }))
                     }
-                    className={`px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all ${
+                    className={`px-4 py-2 rounded-md border-2 text-sm font-medium transition-all ${
                       selectedVariants[type] === v.id
-                        ? "border-purple-500 bg-purple-50 text-purple-700"
-                        : "border-gray-200 text-gray-600 hover:border-purple-300"
+                        ? "border-[#EE4D2D] bg-[#FFF0ED] text-[#EE4D2D]"
+                        : "border-[#E0E0E0] text-[#616161] hover:border-[#EE4D2D]/50"
                     } ${v.stock === 0 ? "opacity-40 cursor-not-allowed" : ""}`}
                     disabled={v.stock === 0}
                   >
                     {v.value}
+                    {v.price && v.price !== product.price && (
+                      <span className="ml-1 text-xs text-[#EE4D2D]">
+                        ({formatPrice(v.price)})
+                      </span>
+                    )}
                     {v.stock === 0 && " (Hết)"}
                   </button>
                 ))}
@@ -267,33 +273,33 @@ export default function ProductDetailPage() {
 
           {/* Quantity */}
           <div className="mb-5">
-            <p className="text-sm font-bold text-gray-700 mb-2">Số lượng:</p>
+            <p className="text-sm font-semibold text-[#212121] mb-2">Số lượng:</p>
             <div className="flex items-center gap-3">
-              <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
+              <div className="flex items-center border border-[#E0E0E0] rounded-md overflow-hidden">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-3 hover:bg-gray-50"
+                  className="p-2.5 hover:bg-[#F5F5F5] transition-colors"
                 >
                   <Minus className="h-4 w-4" />
                 </button>
-                <span className="px-5 py-3 font-bold text-lg min-w-[3rem] text-center">
+                <span className="px-5 py-2.5 font-bold text-base min-w-[3rem] text-center border-x border-[#E0E0E0]">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="p-3 hover:bg-gray-50"
+                  className="p-2.5 hover:bg-[#F5F5F5] transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-[#9E9E9E]">
                 Còn {product.stock} sản phẩm
               </span>
             </div>
           </div>
 
           {/* Deposit notice */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-5">
             <p className="text-sm font-semibold text-amber-800">
               💳 Cần đặt cọc 25.000đ khi đặt hàng
             </p>
@@ -341,10 +347,10 @@ export default function ProductDetailPage() {
               return (
                 <div
                   key={i}
-                  className="flex flex-col items-center gap-1 p-3 bg-gray-50 rounded-xl"
+                  className="flex flex-col items-center gap-1 p-3 bg-[#FAFAFA] rounded-lg border border-[#F5F5F5]"
                 >
-                  <Icon className="h-5 w-5 text-purple-600" />
-                  <span className="text-xs text-gray-600 text-center">{f.text}</span>
+                  <Icon className="h-5 w-5 text-[#EE4D2D]" />
+                  <span className="text-xs text-[#616161] text-center">{f.text}</span>
                 </div>
               );
             })}
@@ -354,9 +360,9 @@ export default function ProductDetailPage() {
 
       {/* Description */}
       {product.description && (
-        <div className="mt-10 bg-white rounded-2xl p-6 shadow-sm">
-          <h2 className="text-xl font-black text-gray-900 mb-4">Mô tả sản phẩm</h2>
-          <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
+        <div className="mt-10 bg-white rounded-lg border border-[#E0E0E0] p-6">
+          <h2 className="text-lg font-bold text-[#212121] mb-4">Mô tả sản phẩm</h2>
+          <div className="text-sm max-w-none text-[#616161] whitespace-pre-wrap leading-relaxed">
             {product.description}
           </div>
         </div>

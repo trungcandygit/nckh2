@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Star, Truck, Shield, RefreshCw } from "lucide-react";
+import { ArrowRight, Truck, Shield, RefreshCw, Zap } from "lucide-react";
 
 function FacebookIcon({ className }: { className?: string }) {
   return (
@@ -8,6 +8,7 @@ function FacebookIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ async function getFeaturedProducts() {
       include: {
         images: { where: { isPrimary: true }, take: 1 },
         category: true,
+        variants: { orderBy: { createdAt: "asc" }, take: 1 },
       },
       take: 8,
       orderBy: { createdAt: "desc" },
@@ -30,7 +32,7 @@ async function getFeaturedProducts() {
 
 async function getCategories() {
   try {
-    return await prisma.category.findMany({ take: 6 });
+    return await prisma.category.findMany({ take: 8, orderBy: { name: "asc" } });
   } catch {
     return [];
   }
@@ -43,6 +45,24 @@ async function getLatestProducts() {
       include: {
         images: { where: { isPrimary: true }, take: 1 },
         category: true,
+        variants: { orderBy: { createdAt: "asc" }, take: 1 },
+      },
+      take: 8,
+      orderBy: { createdAt: "desc" },
+    });
+  } catch {
+    return [];
+  }
+}
+
+async function getSaleProducts() {
+  try {
+    return await prisma.product.findMany({
+      where: { active: true, salePrice: { not: null } },
+      include: {
+        images: { where: { isPrimary: true }, take: 1 },
+        category: true,
+        variants: { orderBy: { createdAt: "asc" }, take: 1 },
       },
       take: 8,
       orderBy: { createdAt: "desc" },
@@ -53,42 +73,45 @@ async function getLatestProducts() {
 }
 
 export default async function HomePage() {
-  const [featuredProducts, categories, latestProducts] = await Promise.all([
+  const [featuredProducts, categories, latestProducts, saleProducts] = await Promise.all([
     getFeaturedProducts(),
     getCategories(),
     getLatestProducts(),
+    getSaleProducts(),
   ]);
 
   return (
     <div>
-      {/* Hero Banner */}
-      <section className="relative bg-gradient-to-br from-purple-700 via-purple-600 to-pink-500 text-white overflow-hidden">
+      {/* Hero Banner - Shopee orange gradient */}
+      <section
+        className="relative text-white overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #EE4D2D 0%, #FF7337 50%, #FF9A44 100%)" }}
+      >
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-300 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-yellow-300 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 py-20 flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-2 text-sm font-medium mb-6">
-            <Star className="h-4 w-4 text-yellow-300 fill-yellow-300" />
-            Shop thời trang uy tín #1
+        <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24 flex flex-col items-center text-center">
+          <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-5">
+            <Zap className="h-4 w-4 text-yellow-200" />
+            Flash Sale mỗi ngày
           </div>
-          <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-            Thời Trang &<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-200">
-              Phụ Kiện
-            </span>
+          <h1 className="text-4xl md:text-6xl font-bold mb-5 leading-tight tracking-tight">
+            Thời Trang &{" "}
+            <span className="text-yellow-200">Phụ Kiện</span>
             <br />
-            <span className="text-3xl md:text-5xl">Chất Lượng Cao</span>
+            <span className="text-3xl md:text-4xl font-semibold text-white/90">
+              Chất Lượng — Giá Tốt
+            </span>
           </h1>
-          <p className="text-lg text-white/80 mb-8 max-w-md">
-            Khám phá hàng ngàn sản phẩm thời trang trending, giá tốt, giao hàng
-            nhanh toàn quốc
+          <p className="text-base text-white/80 mb-8 max-w-md">
+            Khám phá hàng ngàn sản phẩm thời trang trending, giá tốt, giao hàng nhanh toàn quốc
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Link href="/products">
               <Button
                 size="lg"
-                className="bg-white text-purple-700 hover:bg-pink-50 shadow-xl"
+                className="bg-white text-[#EE4D2D] hover:bg-[#FFF0ED] shadow-lg font-semibold"
               >
                 Mua sắm ngay
                 <ArrowRight className="h-5 w-5" />
@@ -102,7 +125,7 @@ export default async function HomePage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white/20 bg-transparent"
+                className="border-white/60 text-white hover:bg-white/20 bg-transparent"
               >
                 <FacebookIcon className="h-5 w-5" />
                 Theo dõi Facebook
@@ -112,23 +135,23 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="bg-white py-8 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {/* Features strip */}
+      <section className="bg-white border-b border-[#E0E0E0]">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               {
                 icon: Truck,
                 title: "Giao hàng toàn quốc",
                 desc: "Nhanh chóng, an toàn",
-                color: "text-purple-600",
-                bg: "bg-purple-50",
+                color: "text-[#EE4D2D]",
+                bg: "bg-[#FFF0ED]",
               },
               {
                 icon: Shield,
                 title: "Bảo đảm chất lượng",
                 desc: "Hàng chính hãng 100%",
-                color: "text-green-600",
+                color: "text-[#00AB56]",
                 bg: "bg-green-50",
               },
               {
@@ -139,24 +162,24 @@ export default async function HomePage() {
                 bg: "bg-blue-50",
               },
               {
-                icon: Star,
+                icon: Zap,
                 title: "Ưu đãi mỗi ngày",
                 desc: "Flash sale hàng ngày",
-                color: "text-yellow-600",
-                bg: "bg-yellow-50",
+                color: "text-[#FF8C00]",
+                bg: "bg-orange-50",
               },
             ].map((feature, i) => {
               const Icon = feature.icon;
               return (
                 <div key={i} className="flex items-center gap-3">
                   <div
-                    className={`w-10 h-10 ${feature.bg} rounded-xl flex items-center justify-center flex-shrink-0`}
+                    className={`w-10 h-10 ${feature.bg} rounded-lg flex items-center justify-center flex-shrink-0`}
                   >
                     <Icon className={`h-5 w-5 ${feature.color}`} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-800">{feature.title}</p>
-                    <p className="text-xs text-gray-500">{feature.desc}</p>
+                    <p className="text-sm font-semibold text-[#212121]">{feature.title}</p>
+                    <p className="text-xs text-[#9E9E9E]">{feature.desc}</p>
                   </div>
                 </div>
               );
@@ -167,34 +190,67 @@ export default async function HomePage() {
 
       {/* Categories */}
       {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-12">
-          <h2 className="text-2xl font-black text-gray-900 mb-6">
-            Danh mục sản phẩm
-          </h2>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+        <section className="max-w-7xl mx-auto px-4 py-10">
+          <h2 className="text-xl font-bold text-[#212121] mb-4">Danh mục sản phẩm</h2>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-8">
+            <Link
+              href="/products"
+              className="flex-shrink-0 flex flex-col items-center gap-2 p-3 bg-[#FFF0ED] rounded-lg hover:bg-[#FFE0DA] transition-colors text-center min-w-[72px]"
+            >
+              <div className="w-10 h-10 bg-[#EE4D2D] rounded-lg flex items-center justify-center">
+                <span className="text-xl">🛍️</span>
+              </div>
+              <span className="text-xs font-medium text-[#EE4D2D] line-clamp-1">Tất cả</span>
+            </Link>
             {categories.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/products?category=${cat.slug}`}
-                className="flex flex-col items-center gap-2 p-4 bg-white rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-center group"
+                className="flex-shrink-0 flex flex-col items-center gap-2 p-3 bg-white rounded-lg border border-[#E0E0E0] hover:border-[#EE4D2D] hover:bg-[#FFF0ED]/30 transition-colors text-center min-w-[72px]"
               >
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center group-hover:from-purple-200 group-hover:to-pink-200 transition-colors">
-                  <span className="text-2xl">👗</span>
+                <div className="w-10 h-10 bg-[#F5F5F5] rounded-lg flex items-center justify-center">
+                  <span className="text-xl">{cat.icon || "📦"}</span>
                 </div>
-                <span className="text-xs font-semibold text-gray-700 line-clamp-1">
+                <span className="text-xs font-medium text-[#212121] line-clamp-1">
                   {cat.name}
                 </span>
               </Link>
             ))}
-            <Link
-              href="/products"
-              className="flex flex-col items-center gap-2 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-center group"
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-200 to-pink-200 rounded-xl flex items-center justify-center">
-                <ArrowRight className="h-6 w-6 text-purple-600" />
+          </div>
+        </section>
+      )}
+
+      {/* Flash Sale */}
+      {saleProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-[#EE4D2D] text-white px-3 py-1.5 rounded-md">
+                <Zap className="h-4 w-4" />
+                <span className="font-bold text-sm">FLASH SALE</span>
               </div>
-              <span className="text-xs font-semibold text-purple-600">Xem tất cả</span>
+              <span className="text-sm text-[#9E9E9E]">Giá ưu đãi hôm nay</span>
+            </div>
+            <Link href="/products?sort=price_asc">
+              <Button variant="ghost" size="sm" className="text-[#EE4D2D] hover:text-[#D73211]">
+                Xem thêm <ArrowRight className="h-4 w-4" />
+              </Button>
             </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {saleProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                price={product.price}
+                salePrice={product.salePrice}
+                image={product.images[0]?.url}
+                slug={product.slug}
+                category={product.category?.name}
+                firstVariantPrice={product.variants[0]?.price}
+              />
+            ))}
           </div>
         </section>
       )}
@@ -202,10 +258,10 @@ export default async function HomePage() {
       {/* Featured Products */}
       {featuredProducts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-black text-gray-900">Sản phẩm nổi bật</h2>
-              <p className="text-gray-500 text-sm">Được yêu thích nhất</p>
+              <h2 className="text-xl font-bold text-[#212121]">Sản phẩm nổi bật</h2>
+              <p className="text-[#9E9E9E] text-sm">Được yêu thích nhất</p>
             </div>
             <Link href="/products?featured=true">
               <Button variant="outline" size="sm">
@@ -213,7 +269,7 @@ export default async function HomePage() {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {featuredProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -224,6 +280,7 @@ export default async function HomePage() {
                 image={product.images[0]?.url}
                 slug={product.slug}
                 category={product.category?.name}
+                firstVariantPrice={product.variants[0]?.price}
               />
             ))}
           </div>
@@ -232,10 +289,10 @@ export default async function HomePage() {
 
       {/* Latest Products */}
       <section className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-2xl font-black text-gray-900">Sản phẩm mới nhất</h2>
-            <p className="text-gray-500 text-sm">Vừa cập nhật</p>
+            <h2 className="text-xl font-bold text-[#212121]">Sản phẩm mới nhất</h2>
+            <p className="text-[#9E9E9E] text-sm">Vừa cập nhật</p>
           </div>
           <Link href="/products">
             <Button variant="outline" size="sm">
@@ -244,7 +301,7 @@ export default async function HomePage() {
           </Link>
         </div>
         {latestProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {latestProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -255,16 +312,15 @@ export default async function HomePage() {
                 image={product.images[0]?.url}
                 slug={product.slug}
                 category={product.category?.name}
+                firstVariantPrice={product.variants[0]?.price}
               />
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-2xl">
+          <div className="text-center py-16 bg-white rounded-lg border border-[#E0E0E0]">
             <div className="text-6xl mb-4">🛍️</div>
-            <h3 className="text-xl font-bold text-gray-700 mb-2">
-              Sắp có sản phẩm mới!
-            </h3>
-            <p className="text-gray-500 mb-6">
+            <h3 className="text-xl font-bold text-[#212121] mb-2">Sắp có sản phẩm mới!</h3>
+            <p className="text-[#9E9E9E] mb-6">
               Theo dõi fanpage để không bỏ lỡ sản phẩm mới nhất
             </p>
             <a
@@ -282,12 +338,13 @@ export default async function HomePage() {
       </section>
 
       {/* CTA Banner */}
-      <section className="bg-gradient-to-r from-pink-500 to-purple-600 text-white py-12 my-8">
+      <section
+        className="text-white py-12 my-8"
+        style={{ background: "linear-gradient(135deg, #EE4D2D 0%, #D73211 100%)" }}
+      >
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-black mb-4">
-            Theo dõi Tinori trên Facebook
-          </h2>
-          <p className="text-white/80 mb-6">
+          <h2 className="text-2xl font-bold mb-3">Theo dõi Tinori trên Facebook</h2>
+          <p className="text-white/80 mb-6 text-sm">
             Cập nhật sản phẩm mới, ưu đãi độc quyền và flash sale mỗi ngày
           </p>
           <a
@@ -295,7 +352,7 @@ export default async function HomePage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button className="bg-white text-purple-700 hover:bg-pink-50" size="lg">
+            <Button className="bg-white text-[#EE4D2D] hover:bg-[#FFF0ED]" size="lg">
               <FacebookIcon className="h-5 w-5" />
               Theo dõi ngay
             </Button>

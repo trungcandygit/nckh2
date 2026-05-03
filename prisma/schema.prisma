@@ -24,6 +24,7 @@ model Category {
   name      String
   slug      String    @unique
   image     String?
+  icon      String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   products  Product[]
@@ -72,6 +73,7 @@ model ProductVariant {
   stock      Int         @default(0)
   price      Float?
   productId  String
+  createdAt  DateTime    @default(now())
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 

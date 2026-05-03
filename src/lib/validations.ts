@@ -40,3 +40,11 @@ export const loginSchema = z.object({
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;
+
+export const categorySchema = z.object({
+  name: z.string().min(2, "Tên danh mục phải ít nhất 2 ký tự"),
+  slug: z.string().regex(/^[a-z0-9-]+$/, "Slug chỉ được chứa a-z, 0-9, dấu -"),
+  icon: z.string().optional(),
+});
+
+export type CategoryFormData = z.infer<typeof categorySchema>;
