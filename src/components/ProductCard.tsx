@@ -1,8 +1,6 @@
-"use client";
-
+/* Inspired by vercel/commerce GridTileImage — MIT License */
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 
 interface ProductCardProps {
@@ -22,64 +20,56 @@ export default function ProductCard({
   price,
   salePrice,
   image,
-  slug,
   category,
   firstVariantPrice,
 }: ProductCardProps) {
-  // If variant has a price, use it as base display price
-  const basePrice = firstVariantPrice ?? price;
-  const displayPrice = salePrice && salePrice < basePrice ? salePrice : basePrice;
-  const originalPrice = salePrice && salePrice < basePrice ? basePrice : null;
-  const hasDiscount = !!originalPrice;
-  const discountPercent = hasDiscount
-    ? Math.round(((basePrice - displayPrice) / basePrice) * 100)
-    : 0;
+  const displayPrice = firstVariantPrice || salePrice || price;
+  const hasDiscount = salePrice && salePrice < price;
+  const discountPct = hasDiscount ? Math.round(((price - salePrice!) / price) * 100) : 0;
 
   return (
     <Link href={`/products/${id}`} className="group block">
-      <div
-        className="bg-white rounded-lg overflow-hidden transition-shadow duration-200 hover:shadow-md"
-        style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}
-      >
+      <div className="relative overflow-hidden rounded-lg border border-neutral-200 bg-white hover:border-neutral-400 transition-colors duration-200">
         {/* Image */}
-        <div className="relative aspect-square overflow-hidden bg-[#F5F5F5]">
+        <div className="relative aspect-square overflow-hidden bg-neutral-50">
           {image ? (
             <Image
               src={image}
               alt={name}
               fill
-              className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+              className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full items-center justify-center bg-[#F5F5F5]">
-              <ShoppingBag className="mx-auto h-10 w-10 text-[#E0E0E0]" />
+            <div className="flex h-full items-center justify-center bg-neutral-100">
+              <span className="text-4xl opacity-30">🛍️</span>
             </div>
           )}
-          {hasDiscount && discountPercent > 0 && (
-            <div className="absolute top-2 left-2 bg-[#EE4D2D] text-white text-xs font-bold px-1.5 py-0.5 rounded" style={{ fontSize: "11px" }}>
-              -{discountPercent}%
+          {hasDiscount && (
+            <div className="absolute top-2 left-2 bg-[#EE4D2D] text-white text-[11px] font-semibold px-1.5 py-0.5 rounded">
+              -{discountPct}%
             </div>
           )}
         </div>
 
         {/* Info */}
-        <div className="p-2.5">
-          <h3 className="text-sm text-[#212121] line-clamp-2 leading-5 mb-1.5 font-normal">
+        <div className="p-3">
+          {category && (
+            <p className="text-[11px] text-neutral-400 mb-1 uppercase tracking-wide">{category}</p>
+          )}
+          <h3 className="text-sm font-medium text-neutral-800 line-clamp-2 leading-5 mb-2">
             {name}
           </h3>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-sm font-bold text-[#EE4D2D]">
+          <div className="flex items-baseline gap-2">
+            <span className="text-[15px] font-semibold text-[#EE4D2D]">
               {formatPrice(displayPrice)}
             </span>
-            {hasDiscount && originalPrice && (
-              <span className="text-xs text-[#9E9E9E] line-through">
-                {formatPrice(originalPrice)}
+            {hasDiscount && (
+              <span className="text-xs text-neutral-400 line-through">
+                {formatPrice(price)}
               </span>
             )}
           </div>
-          {category && (
-            <p className="text-xs text-[#9E9E9E] mt-1 line-clamp-1">{category}</p>
-          )}
         </div>
       </div>
     </Link>

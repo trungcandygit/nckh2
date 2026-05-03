@@ -41,22 +41,22 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-purple-800 to-pink-800 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Store className="h-8 w-8 text-white" />
+          <div className="w-12 h-12 bg-[#EE4D2D] rounded-xl flex items-center justify-center mx-auto mb-4">
+            <Store className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-2xl font-black text-white">Tinori Admin</h1>
-          <p className="text-purple-300 text-sm mt-1">Đăng nhập để quản lý cửa hàng</p>
+          <h1 className="text-xl font-semibold text-neutral-900">Tinori Admin</h1>
+          <p className="text-neutral-400 text-sm mt-1">Đăng nhập để quản lý cửa hàng</p>
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-6">
+        <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Label className="mb-1.5 block">Email</Label>
+              <Label className="mb-1.5 block text-sm font-medium text-neutral-700">Email</Label>
               <Input
                 {...register("email")}
                 type="email"
@@ -69,7 +69,7 @@ export default function AdminLoginPage() {
             </div>
 
             <div>
-              <Label className="mb-1.5 block">Mật khẩu</Label>
+              <Label className="mb-1.5 block text-sm font-medium text-neutral-700">Mật khẩu</Label>
               <div className="relative">
                 <Input
                   {...register("password")}
@@ -81,7 +81,7 @@ export default function AdminLoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -92,20 +92,20 @@ export default function AdminLoginPage() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+              <div className="bg-red-50 border border-red-100 rounded-lg p-3">
                 <p className="text-sm text-red-600 text-center">{error}</p>
               </div>
             )}
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full rounded-lg"
               size="lg"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Đang đăng nhập...
                 </>
               ) : (
@@ -114,13 +114,13 @@ export default function AdminLoginPage() {
             </Button>
           </form>
 
-          <p className="text-xs text-gray-400 text-center mt-4">
-            Đây là trang quản trị dành riêng cho admin
+          <p className="text-xs text-neutral-400 text-center mt-4">
+            Trang quản trị dành riêng cho admin
           </p>
         </div>
 
-        <p className="text-center text-purple-300 text-xs mt-6">
-          <a href="/" className="hover:text-white">← Quay về cửa hàng</a>
+        <p className="text-center text-neutral-400 text-xs mt-6">
+          <a href="/" className="hover:text-neutral-700 transition-colors">← Quay về cửa hàng</a>
         </p>
       </div>
     </div>

@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, Menu, X, Search } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 import { useState } from "react";
 import CartDrawer from "@/components/CartDrawer";
-import { useCart } from "@/hooks/useCart";
 
 function FacebookIcon({ className }: { className?: string }) {
   return (
@@ -17,54 +16,46 @@ function FacebookIcon({ className }: { className?: string }) {
 function ShopeeIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 3a3 3 0 110 6 3 3 0 010-6zm0 14.2a7.2 7.2 0 01-6-3.22c.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08a7.2 7.2 0 01-6 3.22z"/>
+      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 3a3 3 0 110 6 3 3 0 010-6zm0 14.2a7.2 7.2 0 01-6-3.22c.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08a7.2 7.2 0 01-6 3.22z" />
     </svg>
   );
 }
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { items } = useCart();
-  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="sticky top-0 z-30 bg-white border-b border-[#E0E0E0]" style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
-      {/* Main row */}
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center gap-4 h-16">
+    <header className="sticky top-0 z-30 bg-white border-b border-neutral-200">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="flex items-center gap-4 h-14">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-1.5 flex-shrink-0">
-            <span className="text-xl font-bold text-[#EE4D2D] tracking-tight">TINORI</span>
+          <Link href="/" className="flex-shrink-0">
+            <span className="text-lg font-bold text-[#EE4D2D] tracking-tight">TINORI</span>
           </Link>
 
-          {/* Search box - desktop */}
-          <form action="/products" className="hidden md:flex flex-1 max-w-xl">
-            <div className="flex w-full">
+          {/* Search — desktop */}
+          <form action="/products" className="hidden md:flex flex-1 max-w-md">
+            <div className="flex w-full rounded-full border border-neutral-200 overflow-hidden hover:border-neutral-400 transition-colors focus-within:border-neutral-400">
               <input
                 name="q"
                 type="text"
                 placeholder="Tìm kiếm sản phẩm..."
-                className="flex-1 h-10 px-4 text-sm border border-[#E0E0E0] border-r-0 rounded-l-md outline-none focus:border-[#EE4D2D] focus:ring-1 focus:ring-[#EE4D2D]/20 placeholder:text-[#9E9E9E] transition-colors"
+                className="flex-1 h-9 px-4 text-sm outline-none bg-transparent placeholder:text-neutral-400"
               />
               <button
                 type="submit"
-                className="h-10 px-4 bg-[#EE4D2D] text-white rounded-r-md hover:bg-[#D73211] transition-colors flex items-center gap-1.5 text-sm font-medium"
+                className="h-9 px-4 bg-[#EE4D2D] text-white hover:bg-[#D73211] transition-colors flex items-center"
               >
-                <Search className="h-4 w-4" />
+                <Search className="h-3.5 w-3.5" />
               </button>
             </div>
           </form>
 
-          {/* Right actions */}
+          {/* Right */}
           <div className="flex items-center gap-2 ml-auto md:ml-0">
-            {/* Cart */}
-            <div className="relative">
-              <CartDrawer />
-            </div>
-
-            {/* Mobile menu toggle */}
+            <CartDrawer />
             <button
-              className="md:hidden p-2 text-[#616161] hover:text-[#212121] hover:bg-[#F5F5F5] rounded-md transition-colors"
+              className="md:hidden p-2 text-neutral-500 hover:text-neutral-800 hover:bg-neutral-100 rounded-md transition-colors"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -72,8 +63,8 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Second row - nav links */}
-        <nav className="hidden md:flex items-center gap-1 pb-2">
+        {/* Nav links — desktop */}
+        <nav className="hidden md:flex items-center gap-0.5 pb-2">
           {[
             { href: "/", label: "Trang chủ" },
             { href: "/products", label: "Sản phẩm" },
@@ -82,7 +73,7 @@ export default function Navbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="px-3 py-1.5 text-sm text-[#616161] hover:text-[#212121] hover:bg-[#F5F5F5] rounded-md transition-colors"
+              className="px-3 py-1.5 text-sm text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50 rounded-md transition-colors"
             >
               {item.label}
             </Link>
@@ -91,18 +82,18 @@ export default function Navbar() {
             href="https://www.facebook.com/tinori.official"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#616161] hover:text-[#1877F2] hover:bg-[#F0F2FF] rounded-md transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-neutral-500 hover:text-[#1877F2] hover:bg-blue-50 rounded-md transition-colors"
           >
-            <FacebookIcon className="h-4 w-4" />
+            <FacebookIcon className="h-3.5 w-3.5" />
             Facebook
           </a>
           <a
             href="https://shopee.vn/tinori"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#616161] hover:text-[#EE4D2D] hover:bg-[#FFF0ED] rounded-md transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-neutral-500 hover:text-[#EE4D2D] hover:bg-[#FFF0ED] rounded-md transition-colors"
           >
-            <ShopeeIcon className="h-4 w-4" />
+            <ShopeeIcon className="h-3.5 w-3.5" />
             Shopee
           </a>
         </nav>
@@ -110,26 +101,25 @@ export default function Navbar() {
 
       {/* Mobile search */}
       <div className="md:hidden px-4 pb-3">
-        <form action="/products" className="flex">
-          <input
-            name="q"
-            type="text"
-            placeholder="Tìm kiếm sản phẩm..."
-            className="flex-1 h-9 px-3 text-sm border border-[#E0E0E0] border-r-0 rounded-l-md outline-none focus:border-[#EE4D2D] placeholder:text-[#9E9E9E]"
-          />
-          <button
-            type="submit"
-            className="h-9 px-3 bg-[#EE4D2D] text-white rounded-r-md hover:bg-[#D73211] transition-colors"
-          >
-            <Search className="h-4 w-4" />
-          </button>
+        <form action="/products">
+          <div className="flex rounded-full border border-neutral-200 overflow-hidden">
+            <input
+              name="q"
+              type="text"
+              placeholder="Tìm kiếm..."
+              className="flex-1 h-9 px-4 text-sm outline-none bg-transparent placeholder:text-neutral-400"
+            />
+            <button type="submit" className="h-9 px-4 bg-[#EE4D2D] text-white hover:bg-[#D73211] transition-colors">
+              <Search className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </form>
       </div>
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-[#E0E0E0] px-4 pb-4">
-          <nav className="flex flex-col gap-1 pt-2">
+        <div className="md:hidden bg-white border-t border-neutral-100 px-4 pb-4">
+          <nav className="flex flex-col gap-0.5 pt-2">
             {[
               { href: "/", label: "Trang chủ" },
               { href: "/products", label: "Sản phẩm" },
@@ -138,7 +128,7 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="px-3 py-2.5 text-sm text-[#616161] hover:text-[#212121] hover:bg-[#F5F5F5] rounded-md transition-colors"
+                className="px-3 py-2.5 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 rounded-md transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.label}
@@ -148,7 +138,7 @@ export default function Navbar() {
               href="https://www.facebook.com/tinori.official"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-2.5 text-sm text-[#616161] hover:text-[#1877F2] hover:bg-[#F5F5F5] rounded-md transition-colors"
+              className="flex items-center gap-2 px-3 py-2.5 text-sm text-neutral-600 hover:text-[#1877F2] hover:bg-neutral-50 rounded-md transition-colors"
             >
               <FacebookIcon className="h-4 w-4" />
               Facebook
@@ -157,7 +147,7 @@ export default function Navbar() {
               href="https://shopee.vn/tinori"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-2.5 text-sm text-[#616161] hover:text-[#EE4D2D] hover:bg-[#F5F5F5] rounded-md transition-colors"
+              className="flex items-center gap-2 px-3 py-2.5 text-sm text-neutral-600 hover:text-[#EE4D2D] hover:bg-neutral-50 rounded-md transition-colors"
             >
               <ShopeeIcon className="h-4 w-4" />
               Shopee
